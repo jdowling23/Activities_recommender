@@ -49,7 +49,14 @@ def extract_places():
         place_type = places_details['result']['types']
         rating_score = places_details['result]['rating']
         price_level = places_details['result']['price_level]
-        placeList = [name, formatted_address, latlng['lat'], latlng['lng'], place_type, rating_score, price_level]
+        
+        #get distance to location using origin coordinates and location coordinates
+        origin_lat = coord.split(' ')[0]
+        origin_long = coord.split(' ')[1]
+        place_lat, place_long = latlng['lat'], latlng['lng']
+        distance = gmaps.distance_matrix([origin_lat + " " + origin_long], [place_lat + " " + place_long], mode='driving')['rows'][0]['elements'][0]
+        
+        placeList = [name, formatted_address, latlng['lat'], latlng['lng'], place_type, rating_score, price_level, distance]
         stored_results.append(placeList)
     return stored_results
 
@@ -89,7 +96,7 @@ print("Addinig Values in Excel...")
 # row_headers = stored_results[0].keys()
 # create a new workbook and a new worksheet.
 #create dataframe with specified columns
-a = pd.DataFrame(new_stored_results, columns=['Name', 'Address', 'Latitude', 'Longitude', 'Type', 'Rating', 'Price Level'])
+a = pd.DataFrame(new_stored_results, columns=['Name', 'Address', 'Latitude', 'Longitude', 'Type', 'Rating', 'Price Level', 'Disstance'])
 #write dataframe out to excel
 writer = pd.ExcelWriter('data.xlsx', engine='xlsxwriter')
 a.to_excel(writer, sheet_name='Place Details', index=False)
